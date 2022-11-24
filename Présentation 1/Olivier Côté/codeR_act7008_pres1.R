@@ -390,3 +390,75 @@ data_to_graph %>%
 #          scale_y_continuous(labels = scales::percent) + 
 #          scale_x_continuous(labels = scales::dollar)
 # )
+
+negative_borne <- function(q){
+  -1 * pmin(q/(1 - q), (1 - q)/q)
+}
+
+seq_q <- seq(0, 1, by = 0.01)
+seq_pim <- negative_borne(seq_q)
+
+library(tidyverse)
+library(latex2exp)
+ggsave("fig/graph_bornemin_pi.png",
+       data.frame("x" = seq_q,
+           "pi" = seq_pim) %>% 
+  ggplot(aes(x=x, y = pi)) +
+  geom_line(color = "purple", lwd = 2, alpha= 0.8) + 
+  theme_bw() + 
+  labs(x = TeX("$q$"),
+       y = TeX("$\\pi^{-}$"),
+       title = TeX("Borne minimale du paramètre $\\pi$ selon $q$"),
+       subtitle = "Pour un modèle binomial markovien"))
+
+cov_jh <- function(q, pi, h){
+  q * (1 - q) * pi^h
+}
+
+seq_h <- seq(0, 1e2, by = 1)
+q <- 0.5
+seq_pi1 <- seq(0, 0.95, by = 0.0005)
+data_to_g <- expand.grid(q, seq_h, seq_pi1)
+data_to_g$cov <- cov_jh(q, data_to_g$Var3, data_to_g$Var2)
+
+
+col4 <- hcl.colors(5, "Purple-Orange")
+## "Viridis", "Plasma, "Purple-Orange"
+## "Zissou1", "SunsetDark",  "Spectral"
+ggsave("fig/cov_pos_jh.png",
+data_to_g %>%  ggplot(aes(x = Var2, y = cov, col = Var3,
+                          group = factor(Var3))) + 
+  geom_line(lwd = 2, alpha = 0.5)+ 
+  theme_bw() + 
+  labs(x = TeX("$h$"),
+       y = TeX("$Cov(I_j, I_{j + h})$"),
+       title = TeX("Covariance entre $I_j$ et $I_{j + h} pour $\\pi > 0$"),
+       subtitle = TeX("$q = 0.5$"))   +
+  scale_colour_gradient(name = TeX("Valeur de $\\alpha$"),
+                        low = col4[1],
+                        high = tail(col4, 1),
+                        trans = "exp"))
+
+seq_h <- seq(0, 25, by = 1)
+q <- 0.5
+seq_pi2 <- seq(-0.8, 0, by = 0.005)
+data_to_g2 <- expand.grid(q, seq_h, seq_pi2)
+data_to_g2$cov <- cov_jh(q, data_to_g2$Var3, data_to_g2$Var2)
+
+
+col4 <- hcl.colors(5, "Viridis")
+## "Viridis", "Plasma, "Purple-Orange"
+## "Zissou1", "SunsetDark",  "Spectral"
+ggsave("fig/cov_neg_jh.png",
+       data_to_g2 %>%  ggplot(aes(x = Var2, y = cov, col = Var3,
+                                 group = factor(Var3))) + 
+         geom_line(lwd = 2, alpha = 0.5)+ 
+         theme_bw() + 
+         labs(x = TeX("$h$"),
+              y = TeX("$Cov(I_j, I_{j + h})$"),
+              title = TeX("Covariance entre $I_j$ et $I_{j + h} pour $\\pi < 0$"),
+              subtitle = TeX("$q = 0.5$"))   +
+         scale_colour_gradient(name = TeX("Valeur de $\\alpha$"),
+                               low = col4[1],
+                               high = tail(col4, 1),
+                               trans = "exp"))
