@@ -27,6 +27,7 @@
 
 <h3 align="center"> (ACT-7008) Sujets Spéciaux III - Hiver 2022 </h3>
 
+Depuis l'hiver 2023, le cours s'appelle "Modèles de risque avec dépendance et mesures de risque" et il porte le sigle "ACT-7119". 
 
 <!-- ROADMAP -->
 ## Équipe de Travail
